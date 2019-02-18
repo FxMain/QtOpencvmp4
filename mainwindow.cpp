@@ -664,9 +664,7 @@ void MainWindow::on_pic_clicked()//转换
 {
        int Eventcuunt=0;
        VideoCapture cap;
-       //QMessageBox::information(this,"提示","1!");
        cap.open("out1.avi"); //打开视频,以上两句等价于VideoCapture cap("E://2.avi");
-       //QMessageBox::information(this,"提示","2!");
        qDebug()<<"视频帧数："<<cap.get(7);//获取视频帧数
        int spzs=cap.get(7);
        int FilmClip=0;
@@ -688,38 +686,37 @@ void MainWindow::on_pic_clicked()//转换
        string outputVideoPath =  NewFileName().toStdString();
        outputVideo.open(outputVideoPath, CV_FOURCC('M', 'P', '4', 'v'), 30, sWH);
         if(!cap.isOpened())//如果视频不能正常打开则返回
+        {
+            qDebug()<<"视频err";//
             return;
+
+        }
         Mat frame;
         openCamaraB=0;
-        // QCoreApplication::applicationDirPath()+
-        //QString runPath ="..\\"+ui->lineEdit->text();
-//        string runPath ="..\\"+ui->lineEdit->text().toStdString();
-
-        //sprintf(filename,"F:/QtOpencvmp4/tc2.png");
-//        Mat png = imread(runPath,-1);
-        //imshow("Preview",png);
-
-        //QRect WINXY=frameGeometry();
-        //cv::moveWindow("Preview",WINXY.x(),WINXY.y());
-          //QMessageBox::information(this,"提示","6!");
-
         waitKey(30);
-        //QMessageBox::information(this,"提示","1!");
-
         double t = (double)cv::getTickCount();
         cv::namedWindow("Preview", CV_WINDOW_NORMAL);//CV_WINDOW_NORMAL就是0
-
         int jd=0;
         int tcjs=0;
+        QString fullFileName;
+        QString runPath1 = QCoreApplication::applicationDirPath();
+        int first = runPath1.lastIndexOf ("/");
+        runPath1=runPath1.left(first);
+        Mat pngtc[30];
+        for(int i=0;i<30;i++){
+            string runPath =runPath1.toStdString()+"/tc/tc"+QString::number(i).toStdString()+".png";
+            qDebug()<<runPath.c_str();
+            pngtc[i] = imread(runPath,-1);
+        }
+        //QMessageBox::information(this,"提示","1!");
         while(cap.read(frame))
 
         {
 
-            string runPath ="..\\"+QString::number(tcjs).toStdString()+".png";
-            //sprintf(filename,"F:/QtOpencvmp4/tc2.png");
-            Mat png = imread(runPath,-1);
+            Mat png=pngtc[tcjs];
+            tcjs++;
+            if(tcjs>=30){tcjs=0;}//切换照片
 
-            if(tcjs<30){tcjs++;}else{tcjs=0;}//切换照片
             if(jd>=spzs)break;
              //QMessageBox::information(this,"提示","2!");
             double T=(double)cv::getTickCount()-t;
@@ -736,22 +733,22 @@ void MainWindow::on_pic_clicked()//转换
                 QMessageBox::information(this,"提示","转换成功!");
                 return;
             }
-             //QMessageBox::information(this,"提示","3!");
+
 
 
 
             cv::resize(png,png,Size(frame.cols,frame.rows),0,0,INTER_LINEAR);
-            //QMessageBox::information(this,"提示","4C!");
+
             double t1 = (double)cv::getTickCount();
-            //QMessageBox::information(this,"提示","4A!");
+
             diejia(frame, png,1,0.9999999999,0,Point(0,0));
-            //QMessageBox::information(this,"提示","4V!");
+
             T=(double)cv::getTickCount()-t1;
             qDebug()<< "time2:"<<(T)*1000/(cv::getTickFrequency());
             ui->progressBar->setValue(++jd);
-            //QMessageBox::information(this,"提示","4!");
+
             outputVideo << frame;
-             //QMessageBox::information(this,"提示","5!");
+
 
            imshow("Preview",frame);
 
@@ -759,19 +756,11 @@ void MainWindow::on_pic_clicked()//转换
            cv::moveWindow("Preview",WINXY.x(),WINXY.y());
            cv::resizeWindow("Preview", 0,0);
            waitKey(1);
-           //cv::moveWindow("Preview",WINXY.x(),WINXY.y());
-           //QMessageBox::information(this,"提示","6!");
+
 
 
            if(Eventcuunt==0)
            {
-               //width()<<"|"<<height();
-                //QPoint pos(WINXY.x()+width()/2,WINXY.y()+height()/2);
-
-                /*QEvent i;
-                QMouseEvent *mEvnPress;
-                QApplication::sendEvent(this,i)
-                        QEvent::MouseButtonPress;*/
 
            }
 
