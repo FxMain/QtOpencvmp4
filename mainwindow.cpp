@@ -412,7 +412,7 @@ bool diejia(cv::Mat &dst, cv::Mat &src,
 *******************************/
 void MainWindow::on_pushButton_2_clicked()//预览
 {
-    return;
+    return;//预览去掉
     videoWidget->hide();
         openCamaraB=0;
         Mat frame;
