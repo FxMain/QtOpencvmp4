@@ -63,6 +63,22 @@ private slots:
     void on_pushButton_7_clicked();
 
     void on_pushButton_8_clicked();
+    QString fileadd();
+    void NEWFile(QString s);
+    void DEFile(QString s);
+    QString Sgopro(QString s);
+    QString findClassAV(QString s,int i);
+    QString findFiles(const QStringList &files, const QString &text);
+private slots:
+    void myslot();
+    void myslot2();
+
+
+    void on_pushButton_9_clicked();
+
+    void on_pushButton_10_clicked();
+
+    void on_pushButton_11_clicked();
 
 
 

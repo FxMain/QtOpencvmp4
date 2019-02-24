@@ -10,6 +10,7 @@ QT       += serialport
 QT += multimedia
 QT += multimediawidgets
 
+
 #头文件路径
 #头文件路径
 INCLUDEPATH +=  D:/Qt/opencv330Lib/include\
@@ -64,7 +65,9 @@ SOURCES += \
     qrcode/qrinput.c \
     qrcode/qrspec.c \
     qrcode/rscode.c \
-    qrcode/split.c
+    qrcode/split.c \
+    qxtglobalshortcut/qxtglobalshortcut.cpp \
+
 
 HEADERS += \
         mainwindow.h \
@@ -78,7 +81,10 @@ HEADERS += \
     qrcode/qrinput.h \
     qrcode/qrspec.h \
     qrcode/rscode.h \
-    qrcode/split.h
+    qrcode/split.h \
+    qxtglobalshortcut/qxtglobal.h \
+    qxtglobalshortcut/qxtglobalshortcut.h \
+    qxtglobalshortcut/qxtglobalshortcut_p.h
 
 FORMS += \
         mainwindow.ui
@@ -98,3 +104,9 @@ RC_FILE += ico.rc
 
 RESOURCES += \
     qrc.qrc
+win32{
+    SOURCES += qxtglobalshortcut/qxtglobalshortcut_win.cpp
+    LIBS += -luser32
+}
+unix:SOURCES += qxtglobalshortcut/qxtglobalshortcut_x11.cpp
+mac:SOURCES += qxtglobalshortcut/qxtglobalshortcut_mac.cpp

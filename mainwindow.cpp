@@ -5,10 +5,10 @@
 #include <QtSerialPort>
 #include <QtSerialPort/QSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
-
+#include <QDir>
 #include <QMessageBox>
 #include <QApplication>
-
+#include <QDialog>
 #include "qrcode/qrencode.h"
 #include <QDebug>
 #include <QPainter>
@@ -16,10 +16,15 @@
 #include <QRectF>
 #include <QImage>
 #include <QPixmap>
-
-
-
+#include <QScreen>
+#include <qxtglobalshortcut/qxtglobalshortcut.h>
+#include <QApplication>
+#include <QFile>
+#include <QFileDialog>
+#include <QProcess>
+#include <QProgressDialog>
 QString NewFileName();
+bool isFileExist(QString fullFileName);
 void FineName(QString s[],int &n,int mode);//最多寻找倒数的n个文件名，返回文件名和符合个数 mode=0网络连接 mode=1本地连接
 using namespace cv;
 using namespace std;
@@ -79,6 +84,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->pic->setStyleSheet("color: rgb(255, 255, 255)");
     //ui->lineEdit->setFlat(true);
     ui->lineEdit->setStyleSheet("QLineEdit{color: rgb(255, 255, 255);background:transparent;border:0px;border-bottom:1px solid #000;}");
+    ui->lineEdit_2->setStyleSheet("QLineEdit{color: rgb(255, 255, 255);background:transparent;border:0px;border-bottom:1px solid #000;}");
     //ui->lineEdit->setStyleSheet("color: rgb(255, 255, 255)");
     //查找可用的串口
       foreach (const QSerialPortInfo &info,QSerialPortInfo::availablePorts())
@@ -108,6 +114,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->PortBox_2->addItem("正转");
     ui->PortBox_2->addItem("反转");
     ui->progressBar->setVisible(false);  //false:隐藏进度条  true:显示进度条
+    ui->progressBar_2->setVisible(false);  //false:隐藏进度条  true:显示进度条
 
 
     ui->pushButton_sd->setFlat(true);
@@ -116,8 +123,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->pushButton_jdz->setFlat(true);
 
     ui->pushButton_sdz->setStyleSheet("color: rgb(255, 255, 255)");
-    ui->pushButton_jd->setStyleSheet("color: rgb(255, 255, 255)");
-    ui->pushButton_sd->setStyleSheet("color: rgb(255, 255, 255)");
+    ui->pushButton_jd->setStyleSheet( "color: rgb(255, 255, 255)");
+    ui->pushButton_sd->setStyleSheet( "color: rgb(255, 255, 255)");
     ui->pushButton_jdz->setStyleSheet("color: rgb(255, 255, 255)");
 
 //    ui->horizontalSlider->setStyleSheet("QSlider::groove:horizontal{ background-color: rgb(35, 35, 37);\
@@ -135,8 +142,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->horizontalSlider->setValue(0x51); // 设置滑动条初始值
 
     ui->horizontalSlider_2->setMinimum(1);      // 设置滑动条的最小值
-    ui->horizontalSlider_2->setMaximum(140);   // 设置滑动条的最大值
-    ui->horizontalSlider_2->setValue(0x8c); // 设置滑动条初始值
+    ui->horizontalSlider_2->setMaximum(360);   // 设置滑动条的最大值
+    ui->horizontalSlider_2->setValue(360); // 设置滑动条初始值
 
    // QSettings settings("Setting.ini", QSettings::IniFormat); // 当前目录的INI文件
      //GPS setting
@@ -168,6 +175,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->pushButton_6->setFlat(true);//按钮透明
     ui->pushButton_7->setFlat(true);//按钮透明
     ui->pushButton_8->setFlat(true);//按钮透明
+    ui->pushButton_9->setFlat(true);//按钮透明
+    ui->pushButton_10->setFlat(true);//按钮透明
+    ui->pushButton_11->setFlat(true);//按钮透明
 
     ui->pushButton_3->setStyleSheet("color: rgb(255, 255, 255)");//字体白色
     ui->pushButton_4->setStyleSheet("color: rgb(255, 255, 255)");
@@ -175,6 +185,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->pushButton_6->setStyleSheet("color: rgb(255, 255, 255)");
     ui->pushButton_7->setStyleSheet("color: rgb(255, 255, 255)");
     ui->pushButton_8->setStyleSheet("color: rgb(255, 255, 255)");
+    ui->pushButton_9->setStyleSheet("color: rgb(255, 255, 255)");
+    ui->pushButton_10->setStyleSheet("color: rgb(255, 255, 255)");
+    ui->pushButton_11->setStyleSheet("color: rgb(255, 255, 255)");
 
     player = new QMediaPlayer(this);
     videoWidget = new QVideoWidget(this);
@@ -183,11 +196,40 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //ui->verticalLayout->h
     //setAttribute(Qt::WA_TransparentForMouseEvents,true);
+    QxtGlobalShortcut* shortcut = new QxtGlobalShortcut(QKeySequence("F11"), this);
+    connect(shortcut, SIGNAL(activated()), this, SLOT(myslot()));
+    QxtGlobalShortcut* shortcut2 = new QxtGlobalShortcut(QKeySequence("F10"), this);
+    connect(shortcut2, SIGNAL(activated()), this, SLOT(myslot2()));
 
 
 
 
+}
+void MainWindow::NEWFile(QString s){
+    QString runPath1 = QCoreApplication::applicationDirPath();
+    int first = runPath1.lastIndexOf ("/");
+     runPath1=runPath1.left(first)+"/Gopro/"+s;
+     QFile file(runPath1);
+     file.open( QIODevice::WriteOnly );
+     file.close();
+}
+void MainWindow::DEFile(QString s){
+    QString runPath1 = QCoreApplication::applicationDirPath();
+    int first = runPath1.lastIndexOf ("/");
+     runPath1=runPath1.left(first)+"/Gopro/"+s;
+    QFile::remove(runPath1);
+}
+void MainWindow::myslot()//录制
+{
 
+    qDebug()<<"f11";
+    //qDebug()<<findClassAV("MP4",0);
+    openCamara();
+}
+void MainWindow::myslot2()//转换
+{
+    qDebug()<<"f10";
+    on_pic_clicked();
 }
 void MainWindow::handleTimeout()//定时器
 {
@@ -304,8 +346,9 @@ void MainWindow::bj()
     ui->pushButton_jdz->setGeometry(w*446,h*13,29*w,36*h);
 
     ui->horizontalSlider->setGeometry(w*166,h*20,174*w,26*h);
-    ui->horizontalSlider_2->setGeometry(w*503,h*20,174*w,26*h);
-
+    //ui->horizontalSlider_2->setGeometry(w*503,h*20,174*w,26*h);
+    ui->horizontalSlider_2->setGeometry(w*503,h*20,100*w,26*h);
+    ui->lineEdit_2->setGeometry(w*625,h*20,40*w,26*h);
 //    ui->QR1->setGeometry(w*24,h*134,(191-24)*w,(191-24)*w);
 //    ui->pushButton_3->setGeometry(w*204,h*233,70*w,28*h);
 //    ui->pushButton_4->setGeometry(w*204,h*271,70*w,28*h);
@@ -336,8 +379,11 @@ void MainWindow::bj()
     ui->pushButton_7->setGeometry(w*204,h*(233+(539-134)),70*w,28*h);
     ui->pushButton_8->setGeometry(w*204,h*(271+(539-134)),70*w,28*h);
 
+    ui->pushButton_9->setGeometry(w*204,h*(233-36),70*w,28*h);
+    ui->pushButton_10->setGeometry(w*204,h*((233+(337-134)-36)),70*w,28*h);
+    ui->pushButton_11->setGeometry(w*204,h*((233+(539-134)-36)),70*w,28*h);
     ui->progressBar->move( ui->label->x()+ui->label->width()/2-ui->progressBar->width()/2,ui->label->y()+ui->label->height()/2);
-
+    ui->progressBar_2->move( ui->label->x()+ui->label->width()/2-ui->progressBar->width()/2,ui->label->y()+ui->label->height()/2);
 
 
 
@@ -412,6 +458,16 @@ bool diejia(cv::Mat &dst, cv::Mat &src,
 *******************************/
 void MainWindow::on_pushButton_2_clicked()//预览
 {
+    //打开脚本
+    //file:///F:/gQtOpencvmp4/gopro/B/dist/gopro_hero3.exe
+
+    QProcess pro;
+    QString runPath = QCoreApplication::applicationDirPath();
+    int first = runPath.lastIndexOf ("/");
+    runPath=runPath.left(first)+"/Gopro/gopro_hero.exe";
+    qDebug()<<runPath;
+    QStringList list;
+    pro.start(runPath,list);
     return;//预览去掉
     videoWidget->hide();
         openCamaraB=0;
@@ -622,9 +678,17 @@ void MainWindow::on_pushButton_clicked()
     QMessageBox::information(this,"提示","设备打开成功!");
     ui->open->setEnabled (true);
 }
-
+QString MainWindow::Sgopro(QString s){
+    QString runPath1 = QCoreApplication::applicationDirPath();
+    int first = runPath1.lastIndexOf ("/");
+    runPath1=runPath1.left(first)+"/Gopro/"+s;
+    return runPath1;
+}
 void MainWindow::serialRead_Data()
 {
+    QString runPath1 = QCoreApplication::applicationDirPath();
+    int first = runPath1.lastIndexOf ("/");
+    runPath1=runPath1.left(first)+"/Gopro/";
     delay_ms(30);
     QByteArray buf;
     buf = serial->readAll();
@@ -637,19 +701,42 @@ void MainWindow::serialRead_Data()
         c[i++]=0x02;
     }
     c[i++]=ui->horizontalSlider->value();
-    c[i++]=ui->horizontalSlider_2->value();
+    c[i++]=(ui->horizontalSlider_2->value()/360.0)*140;
 //    c[i++]=0x51;
 //    c[i++]=0x8c;
     //c[i++]=0x00;
    // c[i++]=0x00;
     //c[i++]=0x88;
     //c[i++]=0xbb;
+
+
+
     if( buf.count(c)>0)
     {
-        //goto xtb;
+         NEWFile("Stop");//停止录像
+         findClassAV("MP4",1);//删除.MP4
+         NEWFile("Download");//下载视频
+         ui->progressBar_2->setRange(0,90000);
+         ui->progressBar_2->setVisible(true);  //false:隐藏进度条  true:显示进度条
+         for(int tt=0;tt<90000;tt++){
+            ui->progressBar_2->setValue(tt);
+            if(isFileExist(Sgopro("Download_OK")))
+            {
+
+                QString sath=findClassAV("MP4",0);
+                if(sath!=""){
+
+                    QFile::rename(sath,runPath1+"tmp.MP4");
+                }
+                break;
+            }
+            delay_ms(10);
+         }
+        ui->progressBar_2->setVisible(false);
          RCcount++;
         if(RCcount==2)
         {
+
             closeCamara();
             RCcount=0;
         }
@@ -662,9 +749,13 @@ void MainWindow::serialRead_Data()
 
 void MainWindow::on_pic_clicked()//转换
 {
+
        int Eventcuunt=0;
        VideoCapture cap;
-       cap.open("out1.avi"); //打开视频,以上两句等价于VideoCapture cap("E://2.avi");
+       QString runPath3 = QCoreApplication::applicationDirPath();
+       int first3 = runPath3.lastIndexOf ("/");
+       runPath3=runPath3.left(first3)+"/Gopro/tmp.MP4";
+       cap.open(runPath3.toStdString()); //打开视频,以上两句等价于VideoCapture cap("E://2.avi");
        qDebug()<<"视频帧数："<<cap.get(7);//获取视频帧数
        int spzs=cap.get(7);
        int FilmClip=0;
@@ -774,9 +865,17 @@ void MainWindow::on_pic_clicked()//转换
 }
 void MainWindow::openCamara()//录制
 {
+
+    DEFile("Start");//Stop//Download//GoProOK//Downloading
+    DEFile("Stop");
+    DEFile("Download");
+    DEFile("GoProOK");
+    DEFile("Download_OK");
+    DEFile("Downloading");
+    NEWFile("Start");
     ui->open->setEnabled (false);
-    openCamaraB=1;
-    RCcount=0;
+    //openCamaraB=1;
+    //RCcount=0;
     ui->open->setText("录制中");
     ui->open->setStyleSheet("color: rgb(255, 0, 0)");
     char buf[20];
@@ -789,8 +888,8 @@ void MainWindow::openCamara()//录制
         buf[i++]=0x02;
     }
     buf[i++]=ui->horizontalSlider->value();
-    buf[i++]=ui->horizontalSlider_2->value();
-    buf[i++]=0x00;
+    buf[i++]=(ui->horizontalSlider_2->value()/360.0)*140;
+    buf[i++]=ui->lineEdit_2->text().toInt();
     buf[i++]=0x00;
     //buf[i++]=0x88;
     buf[i++]=buf[0]+buf[1]+buf[2]+buf[3]+buf[4]+buf[5];
@@ -830,6 +929,8 @@ void MainWindow::on_horizontalSlider_2_valueChanged(int value)
 void MainWindow::GenerateQRcode(QString tempstr,QLabel *QR)
 {
  QRcode *qrcode;
+ if(tempstr.size()>4)
+ tempstr.resize(tempstr.size()-4);
  qrcode=QRcode_encodeString(tempstr.toStdString().c_str(),2,QR_ECLEVEL_Q,QR_MODE_8,1);
  qint32 temp_width=QR->width();
  qint32 temp_height=QR->height();
@@ -869,8 +970,64 @@ QPixmap mainmap=QPixmap::fromImage(mainimg);
 QR->setPixmap(mainmap);
 QR->setVisible(true);
 }
+QDir currentDir;
+QString MainWindow::findFiles(const QStringList &files, const QString &text)
+{
 
 
+
+    QString foundFiles="";
+
+    for (int i = 0; i < files.size(); i++) {
+        //qDebug()<<":"<<files[i];
+        if(files[i].indexOf(text)!=-1){
+            foundFiles=files[i];
+        }
+    }
+    return foundFiles;
+}
+QString MainWindow::findClassAV(QString s,int sta)
+{
+
+    QString fileName = "*";
+    QString text = s;
+    QString fullFileName;
+    QString runPath = QCoreApplication::applicationDirPath();
+    int first = runPath.lastIndexOf ("/");
+     //qDebug()<<runPath;
+    runPath=runPath.left(first)+"/Gopro";
+    QString path = runPath;
+//! [3]
+
+
+
+//! [4]
+     currentDir = QDir(path);
+    QStringList files;
+    if (fileName.isEmpty())
+        fileName = "*";
+    files = currentDir.entryList(QStringList(fileName),
+                                 QDir::Files | QDir::NoSymLinks);
+    if(sta==1){//删除.MP4
+        for (int i = 0; i < files.size(); i++) {
+            //qDebug()<<":"<<files[i];
+            if(files[i].indexOf(text)!=-1){
+                QFile::remove(files[i]);
+            }
+        }
+        return "";
+    }
+
+    QString path2;
+    if (!text.isEmpty())
+        path2 = findFiles(files, text);
+    //showFiles(files);
+    if(path2.isEmpty())
+    {
+        return "";
+    }
+    return runPath+"/"+path2;
+}
 //2. 判断文件是不是存在
 //参数说明：
 //QString fullFileName;//文件全路径(包含文件名)
@@ -1046,3 +1203,54 @@ void MainWindow::on_pushButton_8_clicked()
             }
     }
 }
+QString MainWindow::fileadd(){
+    //定义文件对话框类
+    QFileDialog *fileDialog = new QFileDialog(this);
+    //定义文件对话框标题
+    fileDialog->setWindowTitle(tr("打开图片"));
+    //设置默认文件路径
+    fileDialog->setDirectory(".");
+    //设置文件过滤器
+    fileDialog->setNameFilter(tr("*.bin"));
+    //设置可以选择多个文件,默认为只能选择一个文件QFileDialog::ExistingFiles
+    fileDialog->setFileMode(QFileDialog::ExistingFiles);
+    //设置视图模式
+    fileDialog->setViewMode(QFileDialog::Detail);
+    //打印所有选择的文件的路径
+    QStringList fileNames;
+    if(fileDialog->exec())
+    {
+        fileNames = fileDialog->selectedFiles();
+    }
+    QString t;
+    for(auto tmp:fileNames)
+    {
+         qDebug()<<tmp<<endl;
+         t=tmp;
+         //ui->lineEdit->setText(tmp);
+    }
+    return  t;
+}
+void MainWindow::on_pushButton_9_clicked()
+{
+       QString filename1 = QFileDialog::getSaveFileName(this,tr("Save Image"),"",tr("Images (*.png *.bmp *.jpg)")); //选择路径
+       QScreen *screen = QGuiApplication::primaryScreen();
+       screen->grabWindow(ui->QR1->winId()).save(filename1);
+
+}
+
+void MainWindow::on_pushButton_10_clicked()
+{
+    QString filename1 = QFileDialog::getSaveFileName(this,tr("Save Image"),"",tr("Images (*.png *.bmp *.jpg)")); //选择路径
+    QScreen *screen = QGuiApplication::primaryScreen();
+    screen->grabWindow(ui->QR2->winId()).save(filename1);
+}
+
+void MainWindow::on_pushButton_11_clicked()
+{
+    QString filename1 = QFileDialog::getSaveFileName(this,tr("Save Image"),"",tr("Images (*.png *.bmp *.jpg)")); //选择路径
+    QScreen *screen = QGuiApplication::primaryScreen();
+    screen->grabWindow(ui->QR3->winId()).save(filename1);
+}
+
+
