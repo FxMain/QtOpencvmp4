@@ -69,6 +69,7 @@ private slots:
     QString Sgopro(QString s);
     QString findClassAV(QString s,int i);
     QString findFiles(const QStringList &files, const QString &text);
+    QString findClassf(QString s,int sta);
 private slots:
     void myslot();
     void myslot2();
@@ -81,6 +82,13 @@ private slots:
     void on_pushButton_11_clicked();
 
 
+
+    void on_pushButton_dz1_clicked();
+
+    void on_pushButton_dz1_2_clicked();
+
+    void on_pushButton_12_clicked();
+    void sltOnReadOutput();
 
 private:
 

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>795</width>
+    <width>975</width>
     <height>590</height>
    </rect>
   </property>
@@ -20,7 +20,7 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>460</x>
+      <x>480</x>
       <y>110</y>
       <width>291</width>
       <height>321</height>
@@ -81,14 +81,14 @@
    <widget class="QPushButton" name="pushButton_2">
     <property name="geometry">
      <rect>
-      <x>333</x>
+      <x>325</x>
       <y>12</y>
-      <width>93</width>
+      <width>101</width>
       <height>28</height>
      </rect>
     </property>
     <property name="text">
-     <string>预览</string>
+     <string>打开音视频合成</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="lineEdit">
@@ -422,13 +422,117 @@
      <number>24</number>
     </property>
    </widget>
+   <widget class="QLineEdit" name="lineEdit_3">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>330</y>
+      <width>251</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_dz1">
+    <property name="geometry">
+     <rect>
+      <x>750</x>
+      <y>330</y>
+      <width>111</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>获取视频地址</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_4">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>370</y>
+      <width>251</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_dz1_2">
+    <property name="geometry">
+     <rect>
+      <x>750</x>
+      <y>370</y>
+      <width>111</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>获取音频地址</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_12">
+    <property name="geometry">
+     <rect>
+      <x>750</x>
+      <y>410</y>
+      <width>111</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>合并</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_5">
+    <property name="geometry">
+     <rect>
+      <x>610</x>
+      <y>410</y>
+      <width>121</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>30</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>530</x>
+      <y>410</y>
+      <width>72</width>
+      <height>15</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>时间：</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>300</y>
+      <width>371</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>795</width>
+     <width>975</width>
      <height>26</height>
     </rect>
    </property>

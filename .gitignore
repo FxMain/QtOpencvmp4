@@ -1,0 +1,5 @@
+*.o
+*.pro.user.*
+build/debug/
+build/release/*.cpp
+build/release/*.h

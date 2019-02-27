@@ -23,6 +23,7 @@
 #include <QFileDialog>
 #include <QProcess>
 #include <QProgressDialog>
+QProcess*  poc;
 QString NewFileName();
 bool isFileExist(QString fullFileName);
 void FineName(QString s[],int &n,int mode);//最多寻找倒数的n个文件名，返回文件名和符合个数 mode=0网络连接 mode=1本地连接
@@ -188,6 +189,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->pushButton_9->setStyleSheet("color: rgb(255, 255, 255)");
     ui->pushButton_10->setStyleSheet("color: rgb(255, 255, 255)");
     ui->pushButton_11->setStyleSheet("color: rgb(255, 255, 255)");
+    ui->label_2->setStyleSheet("color: rgb(255, 255, 255)");
+    ui->label_3->setStyleSheet("color: rgb(255, 255, 255)");
 
     player = new QMediaPlayer(this);
     videoWidget = new QVideoWidget(this);
@@ -201,6 +204,14 @@ MainWindow::MainWindow(QWidget *parent) :
     QxtGlobalShortcut* shortcut2 = new QxtGlobalShortcut(QKeySequence("F10"), this);
     connect(shortcut2, SIGNAL(activated()), this, SLOT(myslot2()));
 
+    ui->lineEdit_3->hide();
+    ui->lineEdit_4->hide();
+    ui->lineEdit_5->hide();
+    ui->pushButton_dz1_2->hide();
+    ui->pushButton_dz1->hide();
+    ui->pushButton_12->hide();
+    ui->label_2->hide();
+     ui->label_3->hide();
 
 
 
@@ -218,18 +229,117 @@ void MainWindow::DEFile(QString s){
     int first = runPath1.lastIndexOf ("/");
      runPath1=runPath1.left(first)+"/Gopro/"+s;
     QFile::remove(runPath1);
+
 }
+int myslotsta=1;
+int myslotsta2=0;
+int mtime=0;
 void MainWindow::myslot()//录制
 {
-
+    if(myslotsta2==0)return;
+    myslotsta2=0;
+    myslotsta=0;
+    //return;
     qDebug()<<"f11";
     //qDebug()<<findClassAV("MP4",0);
     openCamara();
+    while(myslotsta==0){
+        delay_ms(50);
+    }
+    myslotsta=0;
+    on_pic_clicked();
+    myslotsta=1;
+    on_pushButton_12_clicked();
+    QString runPath1 = QCoreApplication::applicationDirPath();
+    int first = runPath1.lastIndexOf ("/");
+    runPath1=runPath1.left(first)+"/";
+    QScreen *screen = QGuiApplication::primaryScreen();
+
+   {
+
+
+        QString s[3]={""};
+        int n=3;
+        FineName(s,n,0);
+        //qDebug()<<s[0]<<":"<<s[1]<<":"<<s[2]<<":"<<n;
+        if(n<=0)
+        {
+            ui->QR3->hide();
+            ui->QR1->hide();
+            ui->QR2->hide();
+            return;
+        }
+        else{
+            ui->QR3->hide();
+            ui->QR1->hide();
+            ui->QR2->hide();
+            for(int i=0;i<n;i++)
+            {
+               if(i==0)
+               {
+                if(!s[0].isEmpty())
+                {
+                    ui->QR1->show();
+                   GenerateQRcode(s[0],ui->QR1);
+                }else{
+                   ui->QR1->hide();
+                }
+               }
+               if(i==1)
+               {
+                   if(!s[1].isEmpty())
+                   {
+                       ui->QR2->show();
+                       GenerateQRcode(s[1],ui->QR2);
+                   }else{
+                      // GenerateQRcode("",ui->QR2);
+                       ui->QR2->hide();
+                   }
+
+
+               }
+               if(i==2)
+               {
+                   if(!s[2].isEmpty())
+                   {
+                        GenerateQRcode(s[2],ui->QR3);
+                        ui->QR3->show();
+                   }else{
+
+
+                   }
+
+               }
+
+            }
+        }
+      }
+
+    QString ss[3]={""};
+    int n=3;
+    FineName(ss,n,1);
+    if(!ss[0].isEmpty()){
+
+        ss[0].replace(".mp4",".png");
+        QFile file(ss[0]);
+        if (file.exists())
+        {
+            file.remove();
+        }
+    }else{
+        return;
+    }
+
+    screen->grabWindow(ui->QR1->winId()).save(ss[0]);
+
+myslotsta2=1;
 }
 void MainWindow::myslot2()//转换
 {
-    qDebug()<<"f10";
-    on_pic_clicked();
+    //qDebug()<<"f10"<<findClassAV("MP4",1);
+    on_pushButton_12_clicked();
+
+    //on_pic_clicked();
 }
 void MainWindow::handleTimeout()//定时器
 {
@@ -458,16 +568,38 @@ bool diejia(cv::Mat &dst, cv::Mat &src,
 *******************************/
 void MainWindow::on_pushButton_2_clicked()//预览
 {
+
+    if(ui->pushButton_2->text()=="打开音视频合成"){
+        //ui->lineEdit_3->show();
+        ui->lineEdit_4->show();
+        //ui->lineEdit_5->show();
+        ui->pushButton_dz1_2->show();
+        //ui->pushButton_dz1->show();
+        //ui->pushButton_12->show();
+        //ui->label_2->show();
+        ui->label_3->show();
+        ui->pushButton_2->setText("关闭音视频合成");
+    }else{
+        ui->lineEdit_3->hide();
+        ui->lineEdit_4->hide();
+        ui->lineEdit_5->hide();
+        ui->pushButton_dz1_2->hide();
+        ui->pushButton_dz1->hide();
+        ui->pushButton_12->hide();
+        ui->label_2->hide();
+        ui->label_3->hide();
+        ui->pushButton_2->setText("打开音视频合成");
+    }
     //打开脚本
     //file:///F:/gQtOpencvmp4/gopro/B/dist/gopro_hero3.exe
 
-    QProcess pro;
-    QString runPath = QCoreApplication::applicationDirPath();
-    int first = runPath.lastIndexOf ("/");
-    runPath=runPath.left(first)+"/Gopro/gopro_hero.exe";
-    qDebug()<<runPath;
-    QStringList list;
-    pro.start(runPath,list);
+//    QProcess pro;
+//    QString runPath = QCoreApplication::applicationDirPath();
+//    int first = runPath.lastIndexOf ("/");
+//    runPath=runPath.left(first)+"/Gopro/gopro_hero.exe";
+//    qDebug()<<runPath;
+//    QStringList list;
+//    pro.start(runPath,list);
     return;//预览去掉
     videoWidget->hide();
         openCamaraB=0;
@@ -677,6 +809,8 @@ void MainWindow::on_pushButton_clicked()
     QObject::connect(serial,&QSerialPort::readyRead,this,&MainWindow::serialRead_Data);
     QMessageBox::information(this,"提示","设备打开成功!");
     ui->open->setEnabled (true);
+    myslotsta2=1;
+
 }
 QString MainWindow::Sgopro(QString s){
     QString runPath1 = QCoreApplication::applicationDirPath();
@@ -715,32 +849,33 @@ void MainWindow::serialRead_Data()
     {
          NEWFile("Stop");//停止录像
          findClassAV("MP4",1);//删除.MP4
-         NEWFile("Download");//下载视频
-         ui->progressBar_2->setRange(0,90000);
+         ui->progressBar_2->setRange(0,10000);
          ui->progressBar_2->setVisible(true);  //false:隐藏进度条  true:显示进度条
+         delay_ms(4000);
+         NEWFile("Download");//下载视频
+         //QFile::copy(runPath1+"/cmd/"+"Download",runPath1+"Download");
+
+
          for(int tt=0;tt<90000;tt++){
             ui->progressBar_2->setValue(tt);
             if(isFileExist(Sgopro("Download_OK")))
             {
 
                 QString sath=findClassAV("MP4",0);
+                qDebug()<<"::"<<sath;
                 if(sath!=""){
 
                     QFile::rename(sath,runPath1+"tmp.MP4");
                 }
+                myslotsta=1;
                 break;
             }
             delay_ms(10);
          }
         ui->progressBar_2->setVisible(false);
-         RCcount++;
-        if(RCcount==2)
-        {
-
-            closeCamara();
-            RCcount=0;
-        }
-
+        ui->open->setText("录制");
+        ui->open->setStyleSheet("color: rgb(255, 255, 255)");
+        ui->open->setEnabled (true);
 
     }
 
@@ -749,15 +884,52 @@ void MainWindow::serialRead_Data()
 
 void MainWindow::on_pic_clicked()//转换
 {
+    QString fileName2 = "*";
+    //QString text = s;
+    QString fullFileName2;
+    QString runPath = QCoreApplication::applicationDirPath();
+    int first2 = runPath.lastIndexOf ("/");
+    runPath=runPath.left(first2);
+    QFile file2(runPath+"/Gopro/tmp.avi");
+    if (file2.exists())
+    {
+        file2.remove();
+    }
+    {
 
+        //ffmpeg -i tmp.MP4 -an -vcodec libx264 -crf 23 outfile.avi
+        poc = new QProcess(this);
+        //ffmpeg -i MV8.mp4 -c:v copy -an mmp.mp4
+        //QString command = QString("D:/ffmpeg-bbezxcy-compressMode-0.0.1/bin/ffmpeg -i F:rawvideo/1.mp4 -pass 1 -y F:/rawvideo/1xxx1.mp4");
+
+        QString command= runPath+"/ffmpeg/ffmpeg -i "+runPath+"/Gopro/tmp.MP4 -an -vcodec libx264 -crf 23 "+runPath+"/Gopro/tmp.avi";
+        connect(poc, SIGNAL(readyReadStandardOutput()), this, SLOT(sltOnReadOutput()));
+        connect(poc, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(onFinished(int, QProcess::ExitStatus)));
+
+        //poc->start("D://ffmpeg.bat");
+        poc->setProcessChannelMode(QProcess::MergedChannels);
+        poc->start(command);
+        poc->waitForFinished();
+    }
+
+
+
+    QString path = runPath+"/tc";
+
+    QDir currentDir = QDir(path);
+    QStringList files = currentDir.entryList(QStringList(fileName2),
+                                 QDir::Files | QDir::NoSymLinks);
+    int tccount=files.size();
+    qDebug()<<"::"<<tccount;
+   // return;
        int Eventcuunt=0;
        VideoCapture cap;
        QString runPath3 = QCoreApplication::applicationDirPath();
        int first3 = runPath3.lastIndexOf ("/");
-       runPath3=runPath3.left(first3)+"/Gopro/tmp.MP4";
+       runPath3=runPath3.left(first3)+"/Gopro/tmp.avi";
        cap.open(runPath3.toStdString()); //打开视频,以上两句等价于VideoCapture cap("E://2.avi");
        qDebug()<<"视频帧数："<<cap.get(7);//获取视频帧数
-       int spzs=cap.get(7);
+       int spzs=cap.get(7);//
        int FilmClip=0;
        QSettings Rtings("Setting.ini", QSettings::IniFormat);
 
@@ -767,7 +939,7 @@ void MainWindow::on_pic_clicked()//转换
        }
        spzs=spzs-FilmClip;
        if(spzs<0)spzs=0;
-       ui->progressBar->setRange(0,cap.get(7));
+       ui->progressBar->setRange(0,cap.get(7));//
        ui->progressBar->setValue(0);
        ui->progressBar->setVisible(true);  //false:隐藏进度条  true:显示进度条
 
@@ -775,7 +947,9 @@ void MainWindow::on_pic_clicked()//转换
        VideoWriter outputVideo;
        //string outputVideoPath = "..\\out2.mp4";
        string outputVideoPath =  NewFileName().toStdString();
-       outputVideo.open(outputVideoPath, CV_FOURCC('M', 'P', '4', 'v'), 30, sWH);
+       qDebug()<<"fs:"<<cap.get(CV_CAP_PROP_FPS);
+       outputVideo.open(outputVideoPath, CV_FOURCC('M', 'P', '4', 'v'), cap.get(CV_CAP_PROP_FPS), sWH);
+
         if(!cap.isOpened())//如果视频不能正常打开则返回
         {
             qDebug()<<"视频err";//
@@ -783,30 +957,32 @@ void MainWindow::on_pic_clicked()//转换
 
         }
         Mat frame;
-        openCamaraB=0;
+
         waitKey(30);
         double t = (double)cv::getTickCount();
-        cv::namedWindow("Preview", CV_WINDOW_NORMAL);//CV_WINDOW_NORMAL就是0
+        cv::namedWindow("Preview", CV_WINDOW_NORMAL);//CV_WINDOW_NORMAL就是 0
         int jd=0;
         int tcjs=0;
         QString fullFileName;
         QString runPath1 = QCoreApplication::applicationDirPath();
         int first = runPath1.lastIndexOf ("/");
         runPath1=runPath1.left(first);
-        Mat pngtc[30];
-        for(int i=0;i<30;i++){
+        Mat pngtc[tccount];
+        for(int i=0;i<tccount;i++){
             string runPath =runPath1.toStdString()+"/tc/tc"+QString::number(i).toStdString()+".png";
             qDebug()<<runPath.c_str();
             pngtc[i] = imread(runPath,-1);
         }
         //QMessageBox::information(this,"提示","1!");
-        while(cap.read(frame))
-
+        //while(cap.read(frame))
+        int fcount=cap.get(7);
+        mtime=((float)cap.get(7))/cap.get(CV_CAP_PROP_FPS);
+        while(fcount--)
         {
-
+            cap>>frame;
             Mat png=pngtc[tcjs];
             tcjs++;
-            if(tcjs>=30){tcjs=0;}//切换照片
+            if(tcjs>=tccount){tcjs=0;}//切换照片
 
             if(jd>=spzs)break;
              //QMessageBox::information(this,"提示","2!");
@@ -821,8 +997,12 @@ void MainWindow::on_pic_clicked()//转换
                 outputVideo.release();
                 cap.release();
                  ui->progressBar->setVisible(false);  //false:隐藏进度条  true:显示进度条
-                QMessageBox::information(this,"提示","转换成功!");
-                return;
+                // delay_ms(10);
+                 qDebug()<< "time2:"<<fcount<<"2"<<(T)*1000/(cv::getTickFrequency());
+                 continue;
+                //QMessageBox::information(this,"提示","转换成功!22");
+                 qDebug()<<"--->>>>>>";
+                //return;
             }
 
 
@@ -835,7 +1015,7 @@ void MainWindow::on_pic_clicked()//转换
             diejia(frame, png,1,0.9999999999,0,Point(0,0));
 
             T=(double)cv::getTickCount()-t1;
-            qDebug()<< "time2:"<<(T)*1000/(cv::getTickFrequency());
+            qDebug()<< "time2:"<<fcount<<"2"<<(T)*1000/(cv::getTickFrequency());
             ui->progressBar->setValue(++jd);
 
             outputVideo << frame;
@@ -850,15 +1030,12 @@ void MainWindow::on_pic_clicked()//转换
 
 
 
-           if(Eventcuunt==0)
-           {
-
-           }
 
         }
 
         outputVideo.release();
         cap.release();
+        if(myslotsta==1)
         QMessageBox::information(this,"提示","转换成功!");
         ui->progressBar->setVisible(false);  //false:隐藏进度条  true:显示进度条
 
@@ -986,6 +1163,53 @@ QString MainWindow::findFiles(const QStringList &files, const QString &text)
     }
     return foundFiles;
 }
+QString MainWindow::findClassf(QString s,int sta)
+{
+
+    QString fileName = "*";
+    QString text = s;
+    QString fullFileName;
+    QString runPath = QCoreApplication::applicationDirPath();
+    int first = runPath.lastIndexOf ("/");
+     //qDebug()<<runPath;
+    runPath=runPath.left(first);
+    QString path = runPath;
+
+     currentDir = QDir(path);
+    QStringList files;
+    if (fileName.isEmpty()){
+
+            fileName = "*";
+        }
+    files = currentDir.entryList(QStringList(fileName),
+                                 QDir::Files | QDir::NoSymLinks);
+    if(sta==1){//删除.MP4
+
+        for (int i = 0; i < files.size(); i++) {
+            //qDebug()<<":"<<runPath+"/"+files[i];
+            if(files[i].indexOf(text)!=-1){
+                    //qDebug()<<"2:"<<runPath+"/"+files[i];
+                QFile file(runPath+"/"+files[i]);
+                if (file.exists())
+                {
+                    file.remove();
+                }
+
+            }
+        }
+        return "";
+    }
+
+    QString path2;
+    if (!text.isEmpty())
+        path2 = findFiles(files, text);
+    //showFiles(files);
+    if(path2.isEmpty())
+    {
+        return "";
+    }
+    return runPath+"/"+path2;
+}
 QString MainWindow::findClassAV(QString s,int sta)
 {
 
@@ -997,22 +1221,27 @@ QString MainWindow::findClassAV(QString s,int sta)
      //qDebug()<<runPath;
     runPath=runPath.left(first)+"/Gopro";
     QString path = runPath;
-//! [3]
 
-
-
-//! [4]
      currentDir = QDir(path);
     QStringList files;
-    if (fileName.isEmpty())
-        fileName = "*";
+    if (fileName.isEmpty()){
+
+            fileName = "*";
+        }
     files = currentDir.entryList(QStringList(fileName),
                                  QDir::Files | QDir::NoSymLinks);
     if(sta==1){//删除.MP4
+
         for (int i = 0; i < files.size(); i++) {
-            //qDebug()<<":"<<files[i];
+            //qDebug()<<":"<<runPath+"/"+files[i];
             if(files[i].indexOf(text)!=-1){
-                QFile::remove(files[i]);
+                    //qDebug()<<"2:"<<runPath+"/"+files[i];
+                QFile file(runPath+"/"+files[i]);
+                if (file.exists())
+                {
+                    file.remove();
+                }
+
             }
         }
         return "";
@@ -1055,6 +1284,30 @@ QString NewFileName()
         fullFileName=runPath+"/MV"+QString::number(count)+".mp4";
          //qDebug()<<fullFileName;
         if(!isFileExist(fullFileName))
+        {
+            goto END;
+        }
+        fullFileName="";
+
+    }
+END:
+    return fullFileName;
+}
+QString NewFileName2()
+{
+    int count=0;
+    QString fullFileName;
+    QString runPath = QCoreApplication::applicationDirPath();
+    int first = runPath.lastIndexOf ("/");
+     //qDebug()<<runPath;
+    runPath=runPath.left(first);
+    //qDebug()<<runPath;
+    for(count=0;count<10000;count++)
+    {
+        //int uuu=(count-1);
+        fullFileName=runPath+"/MV"+QString::number(count-1)+".mp4";
+         //qDebug()<<fullFileName;
+        if(!isFileExist(runPath+"/MV"+QString::number(count)+".mp4"))
         {
             goto END;
         }
@@ -1254,3 +1507,85 @@ void MainWindow::on_pushButton_11_clicked()
 }
 
 
+
+void MainWindow::on_pushButton_dz1_clicked()
+{
+        QString filename = QFileDialog::getOpenFileName(this,tr("选择视频文件"),"",tr("Images (*.mp4)")); //选择路径
+        ui->lineEdit_3->setText(filename);
+
+}
+
+void MainWindow::on_pushButton_dz1_2_clicked()
+{
+    QString filename = QFileDialog::getOpenFileName(this,tr("选择视频文件"),"",tr("Images (*.mp3)")); //选择路径
+    ui->lineEdit_4->setText(filename);
+}
+
+void MainWindow::on_pushButton_12_clicked()
+{
+
+        QString fullFileName;
+        QString runPath = QCoreApplication::applicationDirPath();
+        int first = runPath.lastIndexOf ("/");
+        runPath=runPath.left(first);
+
+        QFile file(runPath+"/ffmpeg/ttx.mp4");
+        if (file.exists())
+        {
+            file.remove();
+        }
+
+        poc = new QProcess(this);
+        //ffmpeg -i MV8.mp4 -c:v copy -an mmp.mp4
+        //QString command = QString("D:/ffmpeg-bbezxcy-compressMode-0.0.1/bin/ffmpeg -i F:rawvideo/1.mp4 -pass 1 -y F:/rawvideo/1xxx1.mp4");
+        QString sjkaj=NewFileName2();
+        if(sjkaj.isEmpty()){
+            QMessageBox::information(this,"提示","生成新视频失败!");
+            return;
+        }
+        QString command= runPath+"/ffmpeg/ffmpeg -i "+sjkaj+" -c:v copy -an "+runPath+"/ffmpeg/ttx.mp4";
+
+        connect(poc, SIGNAL(readyReadStandardOutput()), this, SLOT(sltOnReadOutput()));
+        connect(poc, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(onFinished(int, QProcess::ExitStatus)));
+
+        //poc->start("D://ffmpeg.bat");
+        poc->setProcessChannelMode(QProcess::MergedChannels);
+        poc->start(command);
+        poc->waitForFinished();
+        //ffmpeg -i mmp.mp4 -i 11197.mp3 -t 25 -y o.mp4
+        fullFileName=NewFileName();
+        if(fullFileName.isEmpty()){
+            QMessageBox::information(this,"提示","生成新视频失败!");
+            return;
+        }
+        //ffmpeg -i /Users/mac/Desktop/Video/797.mp4 -i /Users/mac/Desktop/Video/152.mp3 -filter_complex "[0:v]copy [vout];[0:a]volume=volume=0 [aout0];[1:a]volume=volume=1 [aout1];[aout1]aloop=loop=-1:size=2e+09,atrim=0:43[aconcat]; [aout0][aconcat]amix=inputs=2:duration=longest:dropout_transition=0 [aout]" -map [vout] -map [aout] -y /Users/mac/Desktop/Video/mixVideo.mp4
+        //-filter_complex "[0:v]copy [vout];[0:a]volume=volume=0 [aout0];[1:a]volume=volume=1 [aout1];[aout1]aloop=loop=-1:size=2e+09,atrim=0:43[aconcat]; [aout0][aconcat]amix=inputs=2:duration=longest:dropout_transition=0 [aout]" -map [vout] -map [aout]
+        if(ui->lineEdit_4->text().isEmpty()){
+            command= runPath+"/ffmpeg/ffmpeg -i "+runPath+"/ffmpeg/ttx.mp4"+" -i "+runPath+"/AudioVideo/m.mp3 -t "+QString::number(mtime)+" -y " +fullFileName;
+
+        }else{
+            command= runPath+"/ffmpeg/ffmpeg -i "+runPath+"/ffmpeg/ttx.mp4"+" -i "+ui->lineEdit_4->text()+" -t "+QString::number(mtime)+" -y " +fullFileName;
+        }
+
+        //String t
+        /*String tcommand= runPath.toStdString()+"/ffmpeg/ffmpeg -i "+runPath.toStdString()+"/ffmpeg/ttx.mp4"+" -i "+runPath.toStdString()+"/AudioVideo/m.mp3"+
+                " -filter_complex \"[0:v]copy [vout];[0:a]volume=volume=0 [aout0];[1:a]volume=volume=1 [aout1];[aout1]aloop=loop=-1:size=2e+09,atrim=0:43[aconcat]; [aout0][aconcat]amix=inputs=2:duration=longest:dropout_transition=0 [aout]\" -map [vout] -map [aout] -y " +fullFileName.toStdString();
+        command=QString::fromStdString(tcommand);*/
+        qDebug("--------------\n%s",command.toLocal8Bit().data());
+         //          QMessageBox::information(this,"提示","1!");
+
+        connect(poc, SIGNAL(readyReadStandardOutput()), this, SLOT(sltOnReadOutput()));
+        connect(poc, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(onFinished(int, QProcess::ExitStatus)));
+
+        //poc->start("D://ffmpeg.bat");
+        poc->setProcessChannelMode(QProcess::MergedChannels);
+        poc->start(command);
+        poc->waitForFinished();
+        QMessageBox::information(this,"提示","合并成功!");
+
+}
+void MainWindow::sltOnReadOutput(){
+    QString s = poc->readAllStandardOutput();
+    ui->label_3->setText(s);
+    qDebug()<<"11---------"<<s;
+}
